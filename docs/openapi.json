@@ -1,0 +1,1334 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "StockTrack API",
+    "version": "1.0.0",
+    "description": "API documentation for managing stocks, portfolios, and market insights."
+  },
+  "paths": {
+    "/analytics/market": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "View overall stock market performance",
+        "description": "Retrieve index-level market performance data (e.g., growth, volume)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Market performance data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "source": {
+                      "type": "string",
+                      "example": "CACHE"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access"
+          },
+          "403": {
+            "description": "Forbidden - insufficient permissions"
+          },
+          "500": {
+            "description": "Server error while retrieving market data"
+          }
+        }
+      }
+    },
+    "/analytics/sector/{sector}": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Get insights on a specific sector",
+        "description": "Fetch data and performance metrics for a given sector like 'technology'",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "sector",
+            "required": true,
+            "description": "Sector name (e.g., technology, healthcare)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sector insights returned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "insights": {
+                      "type": "object"
+                    },
+                    "source": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Sector not found"
+          },
+          "500": {
+            "description": "Error retrieving sector data"
+          }
+        }
+      }
+    },
+    "/analytics/top-movers": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Retrieve top gaining and losing stocks",
+        "description": "Returns top-performing and worst-performing stocks of the day",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Top movers data retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "topGainers": {
+                      "type": "object"
+                    },
+                    "topLosers": {
+                      "type": "object"
+                    },
+                    "source": {
+                      "type": "string",
+                      "example": "FIRESTORE"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Server error while retrieving top movers"
+          }
+        }
+      }
+    },
+    "/analytics/user-trends": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Analyze user portfolio trends",
+        "description": "Returns user behavior insights and trend analytics",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User trends fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "trends": {
+                      "type": "array",
+                      "items": {
+                        "type": "object"
+                      }
+                    },
+                    "source": {
+                      "type": "string",
+                      "example": "CACHE"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - admin access required"
+          },
+          "500": {
+            "description": "Failed to retrieve user trend analytics"
+          }
+        }
+      }
+    },
+    "/notifications": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Set user-specific notification",
+        "description": "Allows investors to set personalized stock alerts based on a trigger condition",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "userId",
+                  "message",
+                  "trigger"
+                ],
+                "properties": {
+                  "userId": {
+                    "type": "string"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "trigger": {
+                    "type": "string"
+                  }
+                },
+                "example": {
+                  "userId": "abc123",
+                  "message": "AAPL crossed $150",
+                  "trigger": "AAPL > 150"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Notification created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal error while creating notification"
+          }
+        }
+      }
+    },
+    "/notifications/{id}": {
+      "delete": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "Delete a user notification",
+        "description": "Removes a user-set notification by its document ID",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "ID of the notification to delete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notification deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Failed to delete the notification"
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Register a new user",
+        "description": "Registers a new user using Firebase Authentication",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "test@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "password123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "uid": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Registration failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Login an existing user",
+        "description": "Logs in an existing Firebase user and returns an ID token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "test@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "password123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful login",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "idToken": {
+                      "type": "string"
+                    },
+                    "refreshToken": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Invalid credentials"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/set-role": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Assign a custom role to a user",
+        "description": "Admins can set a Firebase custom role for any user",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "uid",
+                  "role"
+                ],
+                "properties": {
+                  "uid": {
+                    "type": "string",
+                    "example": "uid_123"
+                  },
+                  "role": {
+                    "type": "string",
+                    "example": "Investor"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Role set successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Failed to set role"
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "List all users",
+        "description": "Retrieve all Firebase users and their custom claims (Admin only)",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "users": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "uid": {
+                            "type": "string"
+                          },
+                          "email": {
+                            "type": "string"
+                          },
+                          "displayName": {
+                            "type": "string"
+                          },
+                          "customClaims": {
+                            "type": "object"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Failed to list users"
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get user by ID",
+        "description": "Admins or the user themselves can view user profile data",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Firebase UID of the user"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User data retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "uid": {
+                      "type": "string"
+                    },
+                    "email": {
+                      "type": "string"
+                    },
+                    "displayName": {
+                      "type": "string"
+                    },
+                    "customClaims": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        }
+      }
+    },
+    "/portfolio/add-stock": {
+      "post": {
+        "tags": [
+          "Portfolio"
+        ],
+        "summary": "Add stock to portfolio",
+        "description": "Adds a stock with quantity and average buy price to the authenticated user's portfolio.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "symbol",
+                  "quantity",
+                  "averageBuyPrice"
+                ],
+                "properties": {
+                  "symbol": {
+                    "type": "string",
+                    "example": "AAPL"
+                  },
+                  "quantity": {
+                    "type": "integer",
+                    "example": 10
+                  },
+                  "averageBuyPrice": {
+                    "type": "number",
+                    "format": "float",
+                    "example": 145.5
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Stock added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Stock added to portfolio"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to add stock"
+          }
+        }
+      }
+    },
+    "/portfolio": {
+      "get": {
+        "tags": [
+          "Portfolio"
+        ],
+        "summary": "Get user portfolio",
+        "description": "Retrieves all stocks in the authenticated user's portfolio.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Portfolio retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "portfolio": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "symbol": {
+                            "type": "string"
+                          },
+                          "quantity": {
+                            "type": "integer"
+                          },
+                          "averageBuyPrice": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to fetch portfolio"
+          }
+        }
+      }
+    },
+    "/portfolio/remove/{symbol}": {
+      "delete": {
+        "tags": [
+          "Portfolio"
+        ],
+        "summary": "Remove stock by symbol",
+        "description": "Deletes all portfolio entries for the given stock symbol.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "symbol",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Ticker symbol of the stock"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stock removed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Stock removed from portfolio"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stock not found"
+          },
+          "500": {
+            "description": "Failed to remove stock"
+          }
+        }
+      }
+    },
+    "/portfolio/performance": {
+      "get": {
+        "tags": [
+          "Portfolio"
+        ],
+        "summary": "Analyze portfolio performance",
+        "description": "Returns total investment, value, and return percentage.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Performance calculated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "performance": {
+                      "type": "object",
+                      "properties": {
+                        "totalInvestment": {
+                          "type": "number",
+                          "example": 5000
+                        },
+                        "totalValue": {
+                          "type": "number",
+                          "example": 5500
+                        },
+                        "returnPercentage": {
+                          "type": "number",
+                          "example": 10
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to calculate performance"
+          }
+        }
+      }
+    },
+    "/portfolio/alerts": {
+      "post": {
+        "tags": [
+          "Alerts"
+        ],
+        "summary": "Set a price alert",
+        "description": "Sets a stock price alert for the authenticated user.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "symbol",
+                  "targetPrice"
+                ],
+                "properties": {
+                  "symbol": {
+                    "type": "string",
+                    "example": "GOOGL"
+                  },
+                  "targetPrice": {
+                    "type": "number",
+                    "example": 2800
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Alert set successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Price alert set"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to set alert"
+          }
+        }
+      }
+    },
+    "/portfolio/alerts/{id}": {
+      "delete": {
+        "tags": [
+          "Alerts"
+        ],
+        "summary": "Delete a price alert",
+        "description": "Deletes an existing price alert by its document ID.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Alert document ID to delete"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Alert deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Price alert deleted"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to delete alert"
+          }
+        }
+      }
+    },
+    "/stocks/{symbol}/history": {
+      "get": {
+        "tags": [
+          "Stock"
+        ],
+        "summary": "Get 30-day stock history",
+        "description": "Retrieves historical stock prices (max 30 entries)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "symbol",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "AAPL"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "History retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "symbol": {
+                      "type": "string"
+                    },
+                    "history": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": {
+                            "type": "string"
+                          },
+                          "price": {
+                            "type": "number"
+                          }
+                        }
+                      }
+                    },
+                    "source": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to fetch stock history"
+          }
+        }
+      }
+    },
+    "/stocks/{symbol}/news": {
+      "get": {
+        "tags": [
+          "Stock"
+        ],
+        "summary": "Get recent news articles for stock",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "symbol",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "AAPL"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "News retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "symbol": {
+                      "type": "string"
+                    },
+                    "news": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "source": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          },
+                          "date": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "source": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to fetch stock news"
+          }
+        }
+      }
+    },
+    "/stocks/market-trends": {
+      "get": {
+        "tags": [
+          "Stock"
+        ],
+        "summary": "View market trends",
+        "description": "Returns market trends by sector",
+        "responses": {
+          "200": {
+            "description": "Trends fetched",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "trends": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "sector": {
+                            "type": "string"
+                          },
+                          "details": {
+                            "type": "object"
+                          }
+                        }
+                      }
+                    },
+                    "source": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to fetch market trends"
+          }
+        }
+      }
+    },
+    "/stocks/search": {
+      "get": {
+        "tags": [
+          "Stock"
+        ],
+        "summary": "Search stocks",
+        "description": "Search for stocks by symbol or company name",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "Tesla"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stocks found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "symbol": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "source": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to search stocks"
+          }
+        }
+      }
+    },
+    "/stocks/{symbol}/sentiment": {
+      "get": {
+        "tags": [
+          "Stock"
+        ],
+        "summary": "Get sentiment analysis",
+        "description": "Analyzes recent sentiment data for a stock symbol",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "symbol",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "AAPL"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sentiment data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sentimentScore": {
+                      "type": "number"
+                    },
+                    "sentiment": {
+                      "type": "string"
+                    },
+                    "summary": {
+                      "type": "string"
+                    },
+                    "source": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Sentiment not found"
+          },
+          "500": {
+            "description": "Failed to analyze sentiment"
+          }
+        }
+      }
+    },
+    "/stocks/{symbol}/alerts": {
+      "post": {
+        "tags": [
+          "Stock"
+        ],
+        "summary": "Set price alert",
+        "description": "Set a price alert for a specific stock symbol",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "symbol",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "AAPL"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "targetPrice"
+                ],
+                "properties": {
+                  "targetPrice": {
+                    "type": "number",
+                    "example": 150
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Alert created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "alertId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing price"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Failed to set alert"
+          }
+        }
+      }
+    },
+    "/stocks/{symbol}": {
+      "get": {
+        "tags": [
+          "Stock"
+        ],
+        "summary": "Get real-time stock data",
+        "description": "Fetch real-time stock price, currency, and timestamp for a given symbol",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "symbol",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "AAPL"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stock data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "symbol": {
+                      "type": "string"
+                    },
+                    "price": {
+                      "type": "number"
+                    },
+                    "currency": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string"
+                    },
+                    "source": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stock not found"
+          },
+          "500": {
+            "description": "Failed to fetch stock data"
+          }
+        }
+      }
+    }
+  },
+  "components": {},
+  "tags": []
+}
